@@ -1,0 +1,53 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.hayya.masjidtv'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'com.hayya.masjidtv1'   // اسم الحزمة المسجّل في Google Play — لا يُغيَّر بعد النشر
+        minSdk 21
+        targetSdk 36
+        // every GitHub build gets a higher number automatically (Google Play rejects a repeated versionCode)
+        versionCode((System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger())
+        versionName '1.0.11'
+        // رابط ملف التحديث لنسخة direct: {"versionCode":2,"apkUrl":"https://…/hayya-tv.apk"}
+        buildConfigField 'String', 'UPDATE_URL', '"https://example.com/hayya-tv/update.json"'
+    }
+
+    buildFeatures { buildConfig true }
+
+    flavorDimensions 'dist'
+    productFlavors {
+        play   { dimension 'dist'; buildConfigField 'boolean', 'SELF_UPDATE', 'false' }   // للنشر على Google Play
+        direct { dimension 'dist'; buildConfigField 'boolean', 'SELF_UPDATE', 'true'; versionNameSuffix '-direct' } // ملف APK للتثبيت المباشر
+    }
+
+    signingConfigs {
+        release {
+            def ks = System.getenv('KEYSTORE_FILE')
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv('KEYSTORE_PASSWORD')
+                keyAlias System.getenv('KEY_ALIAS')
+                keyPassword System.getenv('KEY_PASSWORD')
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (System.getenv('KEYSTORE_FILE')) signingConfig signingConfigs.release
+        }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+
+// no external libraries: the app only uses the Android framework (WebView), so it builds fully offline
+
+// انسخ نسخة الويب المبنية إلى داخل التطبيق قبل كل بناء
+tasks.register('copyWeb', Copy) {
+    from "${rootDir}/../dist/index.html"
+    into "${projectDir}/src/main/assets/www"
+}
+preBuild.dependsOn copyWeb

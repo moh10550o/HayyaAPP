@@ -1,0 +1,38 @@
+# Cloudflare deployment — see DEPLOY.md
+name = "hayya-masjid"
+main = "worker.js"
+workers_dev = true
+compatibility_date = "2025-06-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hayya"
+database_id = "PUT-YOUR-D1-DATABASE-ID-HERE"
+
+[[kv_namespaces]]
+binding = "MEDIA"
+id = "PUT-YOUR-KV-NAMESPACE-ID-HERE"
+
+[vars]
+# روابط تحميل التطبيق التي تظهر في لوحة التحكم
+APK_URL = ""
+PLAY_URL = ""
+# مزوّد رسائل رمز التحقق: taqnyat | twilio | webhook   (المفاتيح السرية تُضاف كـ secrets وليس هنا)
+SMS_PROVIDER = ""
+TAQNYAT_SENDER = ""
+TWILIO_FROM = ""
+SMS_WEBHOOK_URL = ""
+DEFAULT_COUNTRY_CODE = "966"
+# أرقام مسموح لها فقط بالدخول (مفصولة بفواصل) — اتركه فارغًا للسماح لأي رقم
+ALLOWED_PHONES = ""
+# الاشتراك: أرقام جوال مسؤولي النظام (يرون لوحة الإدارة ويولّدون أكواد التفعيل)، نص السعر، طريقة الشراء، وأيام التجربة
+ADMIN_PHONES = ""
+PRICE_TEXT = ""
+SALES_CONTACT = ""
+TRIAL_DAYS = "14"
